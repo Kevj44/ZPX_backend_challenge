@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zpx-backend-challenge
+
+spec:
+  selector:
+    matchLabels:
+      app: zpx-backend-challenge
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: zpx-backend-challenge
+    spec:
+      containers:
+      - name: zpx-backend-challenge
+        image: kjouneau/zpx_backend_challenge:latest
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 5000

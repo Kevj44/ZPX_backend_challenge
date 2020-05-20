@@ -1,0 +1,347 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="./swagger-ui.css" >
+    <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
+    <style>
+      html
+      {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+
+      *,
+      *:before,
+      *:after
+      {
+        box-sizing: inherit;
+      }
+
+      body
+      {
+        margin:0;
+        background: #fafafa;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+
+    <script src="./swagger-ui-bundle.js"> </script>
+    <script src="./swagger-ui-standalone-preset.js"> </script>
+    <script>
+	var spec = {
+	   "swagger": "2.0",
+	   "info": {
+		  "description": "Swagger API documentation for the ZPX Backend Challenge",
+		  "version": "1.0.0",
+		  "title": "ZPX Backend Challenge"
+	   },
+	   "host": "127.0.0.1:5000",
+	   "basePath": "/ZPXsteamdata/api/v1.0",
+	   "tags": [
+		  {
+			 "name": "reviews",
+			 "description": "Returns a paginated list of game reviews."
+		  },
+		  {
+			 "name": "reports/votes",
+			 "description": "Returns amount of positive and negative votes for each game."
+		  },
+		  {
+			 "name": "reports/trends",
+			 "description": "Returns the growth in average number of players for each game between two dates. Information can be retrieved using a daily, weekly or yearly timespan."
+		  }
+	   ],
+	   "schemes": [
+		  "https",
+		  "http"
+	   ],
+	   "paths": {
+		  "/reviews": {
+			 "get": {
+				"tags": [
+				   "reviews"
+				],
+				"summary": "Lists reviews",
+				"description": "The list is sorted by latest reviews, or chronologically between two given dates. Pagination information is included in the Link header.",
+				"produces": [
+				   "application/json"
+				],
+				"parameters": [
+				   {
+					  "name": "per_page",
+					  "in": "query",
+					  "description": "Number of reviews being displayed per page. Maximum value is 20, default value is 10",
+					  "required": false,
+					  "type": "integer",
+					  "format": "int32"
+				   },
+				   {
+					  "name": "page",
+					  "in": "query",
+					  "description": "Page number when using pagination",
+					  "required": false,
+					  "type": "integer",
+					  "format": "int32"
+				   },
+				   {
+					  "name": "start_date",
+					  "in": "query",
+					  "description": "Must be in the following format: YYYY-MM-DD (e.g. 2017-10-22). When searching between two dates, parameters start_date and end_date are both required",
+					  "required": false,
+					  "type": "string",
+					  "format": "date"
+				   },
+				   {
+					  "name": "end_date",
+					  "in": "query",
+					  "description": "Must be in the following format: YYYY-MM-DD (e.g. 2017-10-22). When searching between two dates, parameters start_date and end_date are both required",
+					  "required": false,
+					  "type": "string",
+					  "format": "date"
+				   }
+				],
+				"responses": {
+				   "200": {
+					  "description": "Successful operation",
+					  "schema": {
+						 "type": "object",
+						 "properties": {
+							"result": {
+							   "type": "object",
+							   "properties": {
+								  "reviews": {
+									 "type": "array",
+									 "items": {
+										"$ref": "#/definitions/Review"
+									 }
+								  }
+							   }
+							}
+						 }
+					  }
+				   },
+				   "400": {
+					  "description": "Bad request",
+					  "schema": {
+						 "$ref": "#/definitions/Message"
+					  }
+				   }
+				}
+			 }
+		  },
+		  "/reports/votes": {
+			 "get": {
+				"tags": [
+				   "reports/votes"
+				],
+				"summary": "Lists positive and negative votes for each game",
+				"produces": [
+				   "application/json"
+				],
+				"responses": {
+				   "200": {
+					  "description": "Successful operation",
+					  "schema": {
+						 "type": "object",
+						 "properties": {
+							"result": {
+							   "type": "object",
+							   "properties": {
+								  "votes": {
+									 "type": "array",
+									 "items": {
+										"$ref": "#/definitions/VoteInfo"
+									 }
+								  }
+							   }
+							}
+						 }
+					  }
+				   }
+				}
+			 }
+		  },
+		  "/reports/trends": {
+			 "get": {
+				"tags": [
+				   "reports/trends"
+				],
+				"summary": "Returns the daily, weekly or yearly trend of the number of players per game",
+				"produces": [
+				   "application/json"
+				],
+				"parameters": [
+				   {
+					  "name": "start_date",
+					  "in": "query",
+					  "description": "Must be in the following format: YYYY-MM-DD (e.g. 2017-10-22). When searching between two dates, parameters start_date and end_date are both required",
+					  "required": true,
+					  "type": "string",
+					  "format": "date"
+				   },
+				   {
+					  "name": "end_date",
+					  "in": "query",
+					  "description": "Must be in the following format: YYYY-MM-DD (e.g. 2017-10-22). When searching between two dates, parameters start_date and end_date are both required",
+					  "required": true,
+					  "type": "string",
+					  "format": "date"
+				   },
+				   {
+					  "name": "timespan",
+					  "in": "query",
+					  "description": "Whether the trend is returned for daily, weekly or yearly data",
+					  "required": false,
+					  "type": "string",
+					  "enum": [
+						 "daily",
+						 "weekly",
+						 "yearly"
+					  ],
+					  "default": "daily"
+				   }
+				],
+				"responses": {
+				   "200": {
+					  "description": "Successful operation",
+					  "schema": {
+						 "type": "object",
+						 "properties": {
+							"result": {
+							   "type": "object",
+							   "properties": {
+								  "trends": {
+									 "type": "array",
+									 "items": {
+										"$ref": "#/definitions/Trends"
+									 }
+								  }
+							   }
+							}
+						 }
+					  }
+				   },
+				   "400": {
+					  "description": "Bad request",
+					  "schema": {
+						 "$ref": "#/definitions/Message"
+					  }
+				   }
+				}
+			 }
+		  }
+	   },
+	   "definitions": {
+		  "Review": {
+			 "type": "object",
+			 "properties": {
+				"date_posted": {
+				   "type": "string",
+				   "example": "2018-10-07 01:56:00"
+				},
+				"game_name": {
+				   "type": "string",
+				   "example": "The Park"
+				},
+				"helpful_amount": {
+				   "type": "integer",
+				   "format": "int32"
+				},
+				"recommended": {
+				   "type": "boolean"
+				},
+				"review_text": {
+				   "type": "string",
+				   "example": "Great game!"
+				},
+				"user_name": {
+				   "type": "string",
+				   "example": "john_14"
+				}
+			 }
+		  },
+		  "VoteInfo": {
+			 "type": "object",
+			 "properties": {
+				"game_name": {
+				   "type": "string",
+				   "example": "The Park"
+				},
+				"positive_votes": {
+				   "type": "integer",
+				   "format": "int32"
+				},
+				"negative_votes": {
+				   "type": "integer",
+				   "format": "int32"
+				}
+			 }
+		  },
+		  "Trends": {
+			 "type": "object",
+			 "properties": {
+				"game_name": {
+				   "type": "array",
+				   "items": {
+					  "type": "object",
+					  "properties": {
+						 "date": {
+							"type": "string",
+							"format": "date"
+						 },
+						 "average_player_count": {
+							"type": "integer",
+							"format": "int32"
+						 },
+						 "growth": {
+							"type": "number",
+							"format": "float",
+							"example": 7.8
+						 }
+					  }
+				   }
+				}
+			 }
+		  },
+		  "Message": {
+			 "type": "object",
+			 "properties": {
+				"message": {
+				   "type": "string",
+				   "example": "Example error string."
+				}
+			 }
+		  }
+	   }
+	}
+	
+    window.onload = function() {
+      // Begin Swagger UI call region
+      const ui = SwaggerUIBundle({
+	    spec: spec,
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+      })
+      // End Swagger UI call region
+
+      window.ui = ui
+    }
+  </script>
+  </body>
+</html>
